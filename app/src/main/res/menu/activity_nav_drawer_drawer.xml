@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_upcoming_trips"
+            android:icon="@mipmap/ic_menu_future_96px"
+            android:title="@string/nav_upcoming_trips" />
+        <item
+            android:id="@+id/nav_past_trips"
+            android:icon="@mipmap/ic_menu_past"
+            android:title="@string/nav_past_trips" />
+        <item
+            android:id="@+id/nav_sign_out"
+            android:icon="@mipmap/ic_menu_calendar"
+            android:title="@string/nav_sign_out" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@mipmap/ic_menu_calendar"
+            android:title="@string/nav_about" />
+    </group>
+
+</menu>
