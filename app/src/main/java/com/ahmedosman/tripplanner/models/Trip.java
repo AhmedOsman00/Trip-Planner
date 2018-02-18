@@ -1,4 +1,4 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.models;
 
 import java.io.Serializable;
 
@@ -90,7 +90,7 @@ public class Trip implements Serializable{
     }
 
     public void setNotes(String[] notes) {
-        String resultNotes = null;
+        String resultNotes = "";
         for(String note:notes){
             resultNotes.concat("*?"+note);
         }

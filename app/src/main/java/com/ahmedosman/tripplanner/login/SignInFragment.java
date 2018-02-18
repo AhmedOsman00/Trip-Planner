@@ -1,9 +1,8 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.login;
 
 
 import android.content.Intent;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
@@ -17,6 +16,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.ahmedosman.tripplanner.home.Home;
+import com.ahmedosman.tripplanner.R;
+import com.ahmedosman.tripplanner.models.User;
+import com.ahmedosman.tripplanner.sqllite.TripsTable;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -80,7 +83,8 @@ public class SignInFragment extends Fragment {
                 if (user != null) {
                     userName = user.getEmail();
                     intent = new Intent(SignInFragment.this.getContext(), Home.class);
-                    intent.putExtra(USER_NAME, userName);
+                    userName = user.getEmail();
+                    TripsTable.setUserName(userName);
                     startActivity(intent);
                     Log.d("signingin", "onAuthStateChanged:signed_in:" + user.getEmail());
                 } else {
@@ -196,8 +200,8 @@ public class SignInFragment extends Fragment {
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(getContext(), email, Toast.LENGTH_SHORT).show();
                             userName = email;
+                            TripsTable.setUserName(userName);
                             intent = new Intent(SignInFragment.this.getContext(), Home.class);
-                            intent.putExtra(USER_NAME, userName);
                             startActivity(intent);
                         } else {
                             Log.i("UNSUCESS", "TRUE");
@@ -235,8 +239,8 @@ public class SignInFragment extends Fragment {
                             }
                         } else {
                             userName = user.getEmail();
+                            TripsTable.setUserName(userName);
                             intent = new Intent(SignInFragment.this.getContext(), Home.class);
-                            intent.putExtra(USER_NAME, userName);
                             startActivity(intent);
                             Toast.makeText(getContext(), R.string.auth_success, Toast.LENGTH_SHORT).show();
                         }

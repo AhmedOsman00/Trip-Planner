@@ -1,4 +1,4 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.login;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

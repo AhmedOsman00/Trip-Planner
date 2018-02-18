@@ -4,20 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.ahmedosman.tripplanner.Home"
+    tools:context="com.ahmedosman.tripplanner.home.Home"
     tools:showIn="@layout/app_bar_nav_drawer">
 
     <include layout="@layout/home_content" />
 
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/add_new_trip"
-            android:layout_width="108dp"
-            android:layout_height="82dp"
-            android:layout_gravity="bottom|end"
-            android:clickable="true"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/ic_menu_add" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_new_trip"
+        android:layout_width="64dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|end"
+        android:clickable="true"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_menu_add" />
 
 </android.support.design.widget.CoordinatorLayout>

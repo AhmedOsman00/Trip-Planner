@@ -1,21 +1,18 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.addtrip;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.AlarmManagerCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +28,11 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.ahmedosman.tripplanner.R;
+import com.ahmedosman.tripplanner.broadcast.MyAlarmManager;
+import com.ahmedosman.tripplanner.models.Trip;
+import com.ahmedosman.tripplanner.sqllite.TripsTable;
+import com.ahmedosman.tripplanner.viewtrip.ViewTrip;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -49,7 +51,7 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
 
     private Spinner spinner;
     private Calendar calendar;
-    private int year, month, day;
+    private int year, month, day, hours, minutes;
     private int CalendarHour, CalendarMinute;
     private String timeFormat;
     private TimePickerDialog timepickerdialog;
@@ -59,6 +61,7 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
     private Button dateBtn;
     private Button noteBtn;
     private Button picBtn;
+    private String picURL;
     private Trip trip;
     private int reminderValue;
     private int PICK_IMAGE_REQUEST = 1;
@@ -72,6 +75,8 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
     private GoogleApiClient mGoogleApiClient;
     private PlaceArrayAdapter mPlaceArrayAdapter;
     private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
+    private FloatingActionButton saveTrip;
+    private FloatingActionButton cancelTrip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +90,8 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
         spinner = (Spinner) findViewById(R.id.spinner);
         startPoint = (AutoCompleteTextView) findViewById(R.id.startPoint);
         endPoint = (AutoCompleteTextView) findViewById(R.id.endPoint);
+        saveTrip = (FloatingActionButton) findViewById(R.id.save_trip);
+        //cancelTrip = (FloatingActionButton) findViewById(R.id.cancel_trip);
         usernameWrapper = (TextInputLayout) findViewById(R.id.titleWrapper);
         usernameWrapper.setHint("Username");
         title = (EditText) findViewById(R.id.title);
@@ -96,7 +103,6 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH);
-        showDate(year, month + 1, day);
         mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Places.GEO_DATA_API).enableAutoManage(this, GOOGLE_API_CLIENT_ID, this).addConnectionCallbacks(this).build();
         startPoint.setThreshold(3);
         endPoint.setThreshold(3);
@@ -107,59 +113,56 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
         startPoint.setAdapter(mPlaceArrayAdapter);
         endPoint.setAdapter(mPlaceArrayAdapter);
 
-        if(getIntent().getSerializableExtra("") != null){
-            trip = (Trip)getIntent().getSerializableExtra("");
+        if (getIntent().getSerializableExtra(ViewTrip.EDIT_TRIP) != null) {
+            trip = (Trip) getIntent().getSerializableExtra(ViewTrip.EDIT_TRIP);
             title.setText(trip.getTripName());
             startPoint.setText(trip.getStartPoint());
             endPoint.setText(trip.getEndPoint());
-            calendar.set(trip.getYear(),trip.getMonth(),trip.getDay(),trip.getMinutes(),trip.getHours());
+            calendar.set(trip.getYear(), trip.getMonth(), trip.getDay(), trip.getMinutes(), trip.getHours());
             //trip.getTimeFormate(timeFormat);
             spinner.setId(trip.getReminder());
-            String[] notes = {"dddd","ddddd"};
+            String[] notes = {"dddd", "ddddd"};
             //trip.getNotes(notes);
             //trip.getRoundTrip(false);
-            //trip.getTripImage();
-        }else{
+            Bitmap bitmap = BitmapFactory.decodeFile(trip.getTripImage());
+            selectedImg.setImageBitmap(bitmap);
+        } else {
             trip = new Trip();
         }
 
-        trip.setTripName(title.getText().toString());
-        trip.setStartPoint(startPoint.getText().toString());
-        trip.setEndPoint(endPoint.getText().toString());
-        trip.setStatus("upcoming");
-        trip.setDay(day);
-        trip.setMonth(month);
-        trip.setYear(year);
-        trip.setHours(CalendarHour);
-        trip.setMinutes(CalendarMinute);
-        trip.setTimeFormate(timeFormat);
-        trip.setReminder(reminderValue);
-        String[] notes = {"dddd","ddddd"};
-        trip.setNotes(notes);
-        trip.setRoundTrip(false);
-        //trip.setTripImage();
 
-        //name with date and hour and minute
-        /*Intent i = new Intent("in.wptrafficanalyzer.servicealarmdemo.demoactivity");
-        PendingIntent operation = PendingIntent.getActivity(getBaseContext(), 0, i, Intent.FLAG_ACTIVITY_NEW_TASK);
-        AlarmManagerCompat alarmManager = (AlarmManagerCompat) getBaseContext().getSystemService(ALARM_SERVICE);
-        DatePicker dpDate = (DatePicker) findViewById(R.id.dp_date);
-        TimePicker tpTime = (TimePicker) findViewById(R.id.tp_time);
-        int year = dpDate.getYear();
-        int month = dpDate.getMonth();
-        int day = dpDate.getDayOfMonth();
-        int hour = tpTime.getCurrentHour();
-        int minute = tpTime.getCurrentMinute();
-        GregorianCalendar calendar = new GregorianCalendar(year, month, day, hour, minute);
-        long alarm_time = calendar.getTimeInMillis();
-        alarmManager.set(AlarmManager.RTC_WAKEUP, alarm_time, operation);
-        Toast.makeText(getBaseContext(), "Alarm is set successfully", Toast.LENGTH_SHORT).show();*/
+        saveTrip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                trip.setTripName(title.getText().toString());
+                trip.setStartPoint(startPoint.getText().toString());
+                trip.setEndPoint(endPoint.getText().toString());
+                trip.setStatus("upcoming");
+                trip.setDay(day);
+                trip.setMonth(month);
+                trip.setYear(year);
+                trip.setHours(CalendarHour);
+                trip.setMinutes(CalendarMinute);
+                trip.setTimeFormate(timeFormat);
+                trip.setReminder(reminderValue);
+                String[] notes = {"dddd", "ddddd"};
+                trip.setNotes(notes);
+                trip.setRoundTrip(false);
+                trip.setTripImage(picURL);
+                trip.setTripId(TripsTable.insert(trip,AddTrip.this));
+                Calendar cal = Calendar.getInstance();
+                cal.clear();
+                cal.set(year,month,day,hours,minutes);
+                MyAlarmManager.triggerAlarmManager(cal,trip,AddTrip.this);
+            }
+        });
 
-        //cancel button
-        //save button
-        //round trip
-
-
+//        cancelTrip.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//            }
+//        });
 
         timeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,18 +173,8 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                if (hourOfDay == 0) {
-                                    hourOfDay += 12;
-                                    timeFormat = "AM";
-                                } else if (hourOfDay == 12) {
-                                    timeFormat = "PM";
-                                } else if (hourOfDay > 12) {
-                                    hourOfDay -= 12;
-                                    timeFormat = "PM";
-                                } else {
-                                    timeFormat = "AM";
-                                }
-                                Toast.makeText(getApplicationContext(), hourOfDay + ":" + minute + timeFormat, Toast.LENGTH_SHORT).show();
+                                minutes = minute;
+                                hours = hourOfDay;
                             }
                         }, CalendarHour, CalendarMinute, false);
                 timepickerdialog.show();
@@ -208,6 +201,7 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
         });
 
     }
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -245,6 +239,7 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
             Uri uri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                picURL = uri.getPath();
                 selectedImg.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -283,16 +278,9 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
                         places.getStatus().toString());
                 return;
             }
-            
+
             final Place place = places.get(0);
             CharSequence attributions = places.getAttributions();
-
-            Log.i(LOG_TAG, "Place Dataaaaaaaaaaaaaaaa");
-            Log.i(LOG_TAG, "placeName: " + Html.fromHtml(place.getName() + ""));
-            Log.i(LOG_TAG, "address: " + Html.fromHtml(place.getAddress() + ""));
-            Log.i(LOG_TAG, "id: " + Html.fromHtml(place.getId() + ""));
-            Log.i(LOG_TAG, "phonenumber: " + Html.fromHtml(place.getPhoneNumber() + ""));
-            Log.i(LOG_TAG, "website: " + place.getWebsiteUri() + "");
             if (attributions != null) {
                 Log.i(LOG_TAG, "attributions: " + Html.fromHtml(attributions.toString()));
             }
@@ -305,30 +293,26 @@ public class AddTrip extends AppCompatActivity implements GoogleApiClient.OnConn
         Toast.makeText(getApplicationContext(), String.valueOf(spinner.getSelectedItem()),
                 Toast.LENGTH_SHORT)
                 .show();
-        reminderValue = pos*5 ;
+        reminderValue = pos * 5;
     }
 
-    private void showDate(int year, int month, int day) {
-        Toast.makeText(getApplicationContext(), new StringBuilder().append(day).append("/")
-                        .append(month).append("/").append(year),
-                Toast.LENGTH_SHORT)
-                .show();
-    }
 
     private DatePickerDialog.OnDateSetListener myDateListener = new
             DatePickerDialog.OnDateSetListener() {
                 @Override
-                public void onDateSet(DatePicker arg0,
-                                      int arg1, int arg2, int arg3) {
-                    showDate(arg1, arg2 + 1, arg3);
+                public void onDateSet(DatePicker arg0, int arg1, int arg2, int arg3) {
+                    year = arg1;
+                    month = arg2 + 1;
+                    day = arg3;
                 }
             };
 
     public void setPic(View view) {
-        ImageView imgageView = (ImageView) view;
-        Drawable drawable = imgageView.getDrawable();
+        ImageView imageView = (ImageView) view;
+        Drawable drawable = imageView.getDrawable();
         if (drawable != null) {
             selectedImg.setImageDrawable(drawable);
+            picURL = selectedImg.getId()+"";
         }
     }
 }

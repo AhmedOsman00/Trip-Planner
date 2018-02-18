@@ -9,25 +9,39 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Home"></activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCYYRy0s9j9ors3VTgWEBRGtDZrgK0hzHU"/>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+
+        <activity android:name=".home.Home"></activity>
         <activity
-            android:name=".ViewTrip"
+            android:name=".viewtrip.ViewTrip"
             android:label="@string/title_activity_view_trip"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Dialogue"
-            android:theme="@style/AppTheme.Transparent" />
+            android:name=".broadcast.Dialogue"
+            android:theme="@style/AppTheme.Transparent"
+            android:launchMode="singleInstance"
+            />
         <activity
-            android:name=".AddTrip"
+            android:name=".addtrip.AddTrip"
             android:label="@string/title_activity_add_trip"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".LoginActivity">
+        <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+        <receiver android:name=".broadcast.AlarmBroadCastReciever"/>
     </application>
 
 </manifest>

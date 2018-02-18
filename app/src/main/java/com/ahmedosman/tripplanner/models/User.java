@@ -1,4 +1,4 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.models;
 
 /**
  * Created by Ahmed on 07-Feb-18.

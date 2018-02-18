@@ -1,4 +1,4 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.login;
 
 
 import android.app.FragmentManager;
@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.ahmedosman.tripplanner.R;
+import com.ahmedosman.tripplanner.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -117,5 +119,4 @@ public class SignUpFragment extends Fragment {
                     }
                 });
     }
-
 }

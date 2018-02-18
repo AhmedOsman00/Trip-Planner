@@ -1,15 +1,19 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.home;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.ahmedosman.tripplanner.R;
+import com.ahmedosman.tripplanner.models.Trip;
+import com.ahmedosman.tripplanner.viewtrip.ViewTrip;
 
 
 public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> {
@@ -17,6 +21,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
     private Trip[] mDataset;
     private TextView txtView;
     private CardView cardView;
+    public static final String CURRENT_TRIP = "current_trip";
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -30,14 +35,14 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(view.getContext(),ViewTrip.class);
-                    intent.putExtra("currentTrip",currentTrip);
+                    intent.putExtra(CURRENT_TRIP,currentTrip);
                     view.getContext().startActivity(intent);
                 }
             });
             view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    Toast.makeText(v.getContext(), currentTrip.getTripName(), Toast.LENGTH_SHORT).show();
+                    CardsAdapter.showPopUp(v,currentTrip);
                     return true;
                 }
             });
@@ -66,12 +71,21 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
         holder.currentTrip = mDataset[position];
         txtView.setText(mDataset[position].getTripName());
         Bitmap bitmap = null ;
-        BitmapDrawable drawable = new BitmapDrawable(bitmap);
-        cardView.setBackground(drawable);
+        //BitmapDrawable drawable = new BitmapDrawable(R.mipmap.TripBack);
+        cardView.setBackgroundResource(R.mipmap.trip);
     }
 
     @Override
     public int getItemCount() {
         return mDataset.length;
+    }
+
+    public static void showPopUp(View view,Trip currentTrip){
+        PopupMenu popupMenu=new PopupMenu(view.getContext(),view);
+        MenuInflater menuInflater=popupMenu.getMenuInflater();
+        PopUpMenuEventHandle popUpMenuEventHandle=new PopUpMenuEventHandle(view.getContext(),currentTrip);
+        popupMenu.setOnMenuItemClickListener(popUpMenuEventHandle);
+        menuInflater.inflate(R.menu.popup_menu,popupMenu.getMenu());
+        popupMenu.show();
     }
 }

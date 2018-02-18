@@ -1,15 +1,19 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.home;
 
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.ahmedosman.tripplanner.R;
+import com.ahmedosman.tripplanner.sqllite.TripsTable;
+import com.ahmedosman.tripplanner.models.Trip;
 
 public class PastTripsFragment extends Fragment {
 
@@ -22,8 +26,8 @@ public class PastTripsFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        TripsTable tripsTable = new TripsTable(getActivity().getApplicationContext());
-        //myDataset = tripsTable.select(Home.PAST);
+        TripsTable tripsTable = new TripsTable();
+        myDataset = tripsTable.select(Home.PAST,getActivity().getApplicationContext());
         parentActivity = getActivity();
         mRecyclerView = (RecyclerView) parentActivity.findViewById(R.id.list_upcoming_trips);
         mRecyclerView.setHasFixedSize(true);

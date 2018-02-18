@@ -1,26 +1,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.ahmedosman.tripplanner.ViewTrip">
+    tools:context="com.ahmedosman.tripplanner.viewtrip.ViewTrip">
     <item
         android:id="@+id/start_trip_view"
         android:orderInCategory="100"
         android:title="@string/start_trip_view"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/delete_trip_view"
         android:orderInCategory="100"
         android:title="@string/delete_trip_view"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/done_trip_view"
         android:orderInCategory="100"
         android:title="@string/done_trip_view"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/reverse_trip_view"
         android:orderInCategory="100"
         android:title="@string/reverse_trip_view"
-        app:showAsAction="never"
+        app:showAsAction="always"
         android:visible="false"/>
 </menu>

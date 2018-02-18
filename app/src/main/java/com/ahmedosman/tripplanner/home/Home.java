@@ -1,41 +1,57 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.home;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ahmedosman.tripplanner.R;
+import com.ahmedosman.tripplanner.addtrip.AddTrip;
+import com.ahmedosman.tripplanner.login.LoginActivity;
+import com.ahmedosman.tripplanner.sqllite.TripsTable;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private FragmentManager mgr;
-    private FragmentTransaction trns;
+
     public static final String PAST = "past";
     public static final String UPCOMING = "upcoming";
+    private TextView userName;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.popup_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        mgr = getFragmentManager();
-        trns = mgr.beginTransaction();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
         UpcomingTripsFragment upcomingFragment = new UpcomingTripsFragment();
-        FragmentManager mgr = getFragmentManager();
-        FragmentTransaction trns = mgr.beginTransaction();
-        trns.add(R.id.fragment_layout, upcomingFragment, "upcoming");
-        trns.commit();
+        replaceFragment(this,upcomingFragment,R.id.fragment_layout,false,"upcoming");
+
         FloatingActionButton addNewTrip = (FloatingActionButton)findViewById(R.id.add_new_trip);
         addNewTrip.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +67,31 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+        userName = (TextView) headerView.findViewById(R.id.username);
+        userName.setText(TripsTable.getUserName());
+    }
+
+
+
+    private void replaceFragment(AppCompatActivity activity, Fragment fragment, @IdRes int container,
+                                       boolean isNeedToAddToStack,
+                                       String fragmentTag) {
+
+        FragmentManager manager = activity.getSupportFragmentManager();
+        boolean isInStack = manager.popBackStackImmediate(fragmentTag, 0);
+        FragmentTransaction ft = manager.beginTransaction();
+
+        if (isInStack) {
+            fragment = manager.findFragmentByTag(fragmentTag);
+        }
+
+        ft.replace(container, fragment, fragmentTag);
+        if (!isInStack && isNeedToAddToStack) {
+            ft.addToBackStack(fragmentTag);
+        }
+
+        ft.commit();
     }
 
     @Override
@@ -69,14 +110,14 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             case R.id.nav_upcoming_trips:
                 Toast.makeText(getApplicationContext(), "Upcoming", Toast.LENGTH_SHORT).show();
                 UpcomingTripsFragment upcomingFragment = new UpcomingTripsFragment();
-                trns.replace(R.id.fragment_layout, upcomingFragment, UPCOMING);
-                trns.commit();
+                replaceFragment(this,upcomingFragment,R.id.fragment_layout,false,"upcoming");
+
                 break;
             case R.id.nav_past_trips:
                 Toast.makeText(getApplicationContext(), "Past", Toast.LENGTH_SHORT).show();
                 PastTripsFragment pastTripsFragment = new PastTripsFragment();
-                trns.replace(R.id.fragment_layout, pastTripsFragment, PAST);
-                trns.commit();
+                replaceFragment(this,pastTripsFragment,R.id.fragment_layout,false,PAST);
+
                 break;
             case R.id.nav_sign_out:
                 Toast.makeText(getApplicationContext(), "Signed out", Toast.LENGTH_SHORT).show();

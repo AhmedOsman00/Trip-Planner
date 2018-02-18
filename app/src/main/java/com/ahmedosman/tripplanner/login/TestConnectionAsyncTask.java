@@ -1,4 +1,4 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.login;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

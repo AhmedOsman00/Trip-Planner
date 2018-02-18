@@ -1,4 +1,4 @@
-package com.ahmedosman.tripplanner;
+package com.ahmedosman.tripplanner.addtrip;
 
 import android.content.Context;
 import android.util.Log;
