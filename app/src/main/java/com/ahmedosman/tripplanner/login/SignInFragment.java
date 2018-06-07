@@ -191,7 +191,7 @@ public class SignInFragment extends Fragment {
                         if (task.isSuccessful()) {
                             Log.d("TAG", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(getContext(), email, Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getContext(), email, Toast.LENGTH_SHORT).show();
                             userName = email;
                             TripsTable.setUserName(userName);
                             intent = new Intent(SignInFragment.this.getContext(), Home.class);
@@ -203,8 +203,6 @@ public class SignInFragment extends Fragment {
                             try {
                                 if (myTest.execute().get() == false)
                                     Toast.makeText(getContext(), R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
-                                else
-                                    Toast.makeText(getContext(), "Duplicated", Toast.LENGTH_SHORT).show();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

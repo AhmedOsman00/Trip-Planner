@@ -120,7 +120,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 
                 break;
             case R.id.nav_sign_out:
-                Toast.makeText(getApplicationContext(), "Signed out", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Signed out Successfully", Toast.LENGTH_LONG).show();
                 FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(this,LoginActivity.class);
                 startActivity(intent);
