@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ahmedosman.tripplanner.home.Home;
@@ -39,13 +40,12 @@ public class SignInFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private Button btnSignUp;
     private Button btnSignIn;
+    private TextView invalidEmailOrPassword;
     private SignInButton btnSignInGoogle;
     private GoogleSignInClient mGoogleSignInClient;
     public static final int RC_SIGN_IN = 1;
     private String googleClientId;
     private Validation validator;
-    private FragmentManager mgr;
-    private FragmentTransaction trns;
     private Intent intent;
     private String userName;
     public static final String USER_NAME = "username";
@@ -58,7 +58,6 @@ public class SignInFragment extends Fragment {
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -69,9 +68,7 @@ public class SignInFragment extends Fragment {
         btnSignUp = (Button) view.findViewById(R.id.btnSignUp);
         btnSignIn = (Button) view.findViewById(R.id.btnSignIn);
         btnSignInGoogle = (SignInButton) view.findViewById(R.id.btnSignInGoogle);
-
-        emailWrapper.setHint("Email");
-        passwordWrapper.setHint("Password");
+        invalidEmailOrPassword = view.findViewById(R.id.invalid_email_or_password);
 
         googleClientId = "832170904658-e9qavrugrim2l0ipcj3al0rg9lbq9vtj.apps.googleusercontent.com";
         mAuth = FirebaseAuth.getInstance();
@@ -97,43 +94,39 @@ public class SignInFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                invalidEmailOrPassword.setVisibility(View.INVISIBLE);
                 String email = emailWrapper.getEditText().getText().toString();
                 String password = passwordWrapper.getEditText().getText().toString();
-                passwordWrapper.setErrorEnabled(true);
-                emailWrapper.setErrorEnabled(true);
 
                 //Validation
                 boolean emailValid = validator.validateEmail(email);
                 boolean passwordLengthValid = validator.validatePasswordLength(password);
 
-                //Validation
+                if (passwordLengthValid)
+                    passwordWrapper.setError("");
+                else
+                    passwordWrapper.setError("Short password");
+
+                if (emailValid)
+                    emailWrapper.setError("");
+                else
+                    emailWrapper.setError("Invalid Email");
+
                 if (emailValid && passwordLengthValid) {
-                    emailWrapper.setErrorEnabled(false);
-                    passwordWrapper.setErrorEnabled(false);
                     User user = new User(email, password);
                     signIn(user);
-                } else {
-
-                    if (passwordLengthValid)
-                        passwordWrapper.setError("");
-                    else
-                        passwordWrapper.setError("Short password");
-
-                    if (emailValid)
-                        emailWrapper.setError("");
-                    else
-                        emailWrapper.setError("Invalid Email");
                 }
             }
         });
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mgr = getFragmentManager();
-                trns = mgr.beginTransaction();
+                invalidEmailOrPassword.setVisibility(View.INVISIBLE);
                 SignUpFragment signUpFragment = new SignUpFragment();
-                trns.replace(R.id.login_fragment, signUpFragment, SIGNUP);
-                trns.commit();
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.login_fragment, signUpFragment, SIGNUP)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -233,7 +226,7 @@ public class SignInFragment extends Fragment {
                                 if (myTest.execute().get() == false)
                                     Toast.makeText(getContext(), R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
                                 else
-                                    Toast.makeText(getContext(), "Wrong User NameOr Password", Toast.LENGTH_SHORT).show();
+                                    invalidEmailOrPassword.setVisibility(View.VISIBLE);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -242,7 +235,6 @@ public class SignInFragment extends Fragment {
                             TripsTable.setUserName(userName);
                             intent = new Intent(SignInFragment.this.getContext(), Home.class);
                             startActivity(intent);
-                            Toast.makeText(getContext(), R.string.auth_success, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

@@ -17,15 +17,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mgr = getSupportFragmentManager();
-        trns = mgr.beginTransaction();
-        SignInFragment signInFragment = new SignInFragment();
-        trns.add(R.id.login_fragment, signInFragment, "signin");
-        trns.commit();
+        if(savedInstanceState == null) {
+            mgr = getSupportFragmentManager();
+            trns = mgr.beginTransaction();
+            SignInFragment signInFragment = new SignInFragment();
+            trns.add(R.id.login_fragment, signInFragment, "signin");
+            trns.commit();
+        }
     }
 
-    @Override
-    public void onBackPressed() {
-
-    }
 }

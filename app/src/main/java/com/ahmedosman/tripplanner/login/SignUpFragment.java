@@ -1,8 +1,8 @@
 package com.ahmedosman.tripplanner.login;
 
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
@@ -21,11 +21,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import static com.ahmedosman.tripplanner.login.SignInFragment.SIGNIN;
+import static com.ahmedosman.tripplanner.login.SignInFragment.SIGNUP;
+
 public class SignUpFragment extends Fragment {
     private Button btnSignUp;
+    private Button btnSignIn;
     private Validation validator;
-    private FragmentManager mgr;
-    private FragmentTransaction trns;
+    private SignInFragment signInFragment;
+    private TextInputLayout emailWrapper;
+    private TextInputLayout passwordWrapper;
+    private TextInputLayout confirmPasswordWrapper;
 
     public SignUpFragment() {
         // Required empty public constructor
@@ -38,29 +44,31 @@ public class SignUpFragment extends Fragment {
         validator = new Validation();
 
         btnSignUp = (Button) view.findViewById(R.id.btn);
-        final TextInputLayout emailWrapper = (TextInputLayout) view.findViewById(R.id.emailSignUpWrapper);
-        final TextInputLayout passwordWrapper = (TextInputLayout) view.findViewById(R.id.passwordSignUpWrapper);
-        final TextInputLayout confirmPasswordWrapper = (TextInputLayout) view.findViewById(R.id.confirmPasswordSignUpWrapper);
+        btnSignIn = view.findViewById(R.id.btnGoToSignIn);
 
-        emailWrapper.setHint("Email");
-        passwordWrapper.setHint("Password");
-        confirmPasswordWrapper.setHint("Confirm Password");
+        emailWrapper = (TextInputLayout) view.findViewById(R.id.emailSignUpWrapper);
+        passwordWrapper = (TextInputLayout) view.findViewById(R.id.passwordSignUpWrapper);
+        confirmPasswordWrapper = (TextInputLayout) view.findViewById(R.id.confirmPasswordSignUpWrapper);
+        signInFragment = (SignInFragment) getFragmentManager().findFragmentByTag(SIGNIN);
+
+        btnSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(signInFragment == null)
+                    signInFragment = new SignInFragment();
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.login_fragment, signInFragment, SIGNIN)
+                        .commit();
+            }
+        });
 
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailWrapper.getEditText().getText().toString();
+                final String email = emailWrapper.getEditText().getText().toString();
                 String confirmPassword = confirmPasswordWrapper.getEditText().getText().toString();
                 String password = passwordWrapper.getEditText().getText().toString();
-                passwordWrapper.setErrorEnabled(true);
-                passwordWrapper.setError("");
-
-                confirmPasswordWrapper.setErrorEnabled(true);
-                confirmPasswordWrapper.setError("");
-
-                emailWrapper.setErrorEnabled(true);
-                emailWrapper.setError("");
 
                 //Validation
                 boolean emailValid = validator.validateEmail(email);
@@ -68,9 +76,6 @@ public class SignUpFragment extends Fragment {
                 boolean passwordConfirmationValid = validator.validatePasswordConfirmation(password, confirmPassword);
 
                 if (emailValid && passwordConfirmationValid && passwordLengthValid) {
-                    emailWrapper.setErrorEnabled(false);
-                    passwordWrapper.setErrorEnabled(false);
-                    confirmPasswordWrapper.setErrorEnabled(false);
                     User user = new User(email, password);
                     createAccount(user);
                 } else {
@@ -78,10 +83,15 @@ public class SignUpFragment extends Fragment {
                         passwordWrapper.setError("");
                     else
                         passwordWrapper.setError("Your password must be at least 6 characters long");
+
                     if (passwordConfirmationValid)
                         confirmPasswordWrapper.setError("");
-                    else
+                    else {
                         confirmPasswordWrapper.setError("Your password doesn't match the confirmation");
+                        Log.i("pass", passwordWrapper.getEditText().getText().toString());
+                        Log.i("pass", confirmPasswordWrapper.getEditText().getText().toString());
+                    }
+
                     if (emailValid)
                         emailWrapper.setError("");
                     else
@@ -93,7 +103,7 @@ public class SignUpFragment extends Fragment {
     }
 
 
-    public void createAccount(User user) {
+    public void createAccount(final User user) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -108,13 +118,13 @@ public class SignUpFragment extends Fragment {
                                 if (myTest.execute().get() == false)
                                     Toast.makeText(getContext(), R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
                                 else
-                                    Toast.makeText(getContext(), "Duplicated", Toast.LENGTH_SHORT).show();
+                                    emailWrapper.setError("Duplicated Email Address");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         } else {
                             //Signed up successfully
-                            Toast.makeText(getContext(), "Signed Up",Toast.LENGTH_SHORT).show();
+                            signInFragment.signIn(user);
                         }
                     }
                 });
